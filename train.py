@@ -93,3 +93,6 @@ for target_object_name in [
       os.makedirs(f"finetuned_weights/{target_object_name}/{dataset_type}/{num_epochs}")
 
     sam_lora.save_lora_parameters(f"finetuned_weights/{target_object_name}/{dataset_type}/{num_epochs}/lora_rank{rank}.safetensors")
+
+
+print("DONE!")
