@@ -92,9 +92,24 @@ with open("./config.yaml", "r") as ymlfile:
 f = open('annotations.json')
 annotations = json.load(f)
 
+import os
+train_set = {}
+test_set = {}
 
-train_set = annotations["train"]
-test_set = annotations["test"]
+test_count = 0
+for path in os.listdir("./dataset/train/images"):
+    if test_count >= 10: break
+    if path.endswith(".jpg"):
+        train_set[path] = {"mask_path": f"./dataset/train/masks/{path}", "bbox": [27, 25, 172, 209]}
+    test_count += 1
+
+test_count = 0
+for path in os.listdir("./dataset/test/images"):
+    if test_count >= 10: break
+    if path.endswith(".jpg"):
+        test_set[path] = {"mask_path": f"./dataset/test/masks/{path}", "bbox": [27, 25, 172, 209]}
+    test_count += 1
+
 inference_train = True
 
 if inference_train:
