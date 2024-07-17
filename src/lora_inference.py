@@ -3,6 +3,7 @@ import os
 from colorama import Fore, Back, Style
 from PIL import Image
 import numpy as np
+import torch
 
 from caching import is_numpy_array_cached, cache_numpy_array, load_cached_numpy_array
 from lora.segment_anything import build_sam_vit_b, SamPredictor
@@ -25,6 +26,9 @@ class LoraSamInference:
         self.sam_lora.load_lora_parameters(finetuned_weights)
 
         self.model = self.sam_lora.sam
+
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model.to(device)
 
     def cached_predict(self, cached_path: str, image_path: str, mask_path: str, return_logits: bool = False, verbose: bool = False):
         if not is_numpy_array_cached(cached_path):
