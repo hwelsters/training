@@ -13,7 +13,7 @@ import torch
 with open("./config.yaml", "r") as ymlfile:
         config_file = yaml.load(ymlfile, Loader=yaml.Loader)
 
-device = device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 colors = (255, 0, 0)
 # SAM model
 sam = build_sam_vit_b(checkpoint=config_file["SAM"]["CHECKPOINT"])
