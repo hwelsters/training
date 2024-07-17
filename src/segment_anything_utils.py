@@ -2,7 +2,6 @@ import time
 
 from segment_anything import SamPredictor, SamAutomaticMaskGenerator, sam_model_registry
 from PIL import Image
-from lang_sam import LangSAM
 
 import cv2
 from colorama import Fore, Back, Style
@@ -84,8 +83,6 @@ class SegmentAnythingSession:
         device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model = sam_model_registry[model_name](path_to_checkpoint)
         self.model.to(device)
-
-        self.lang_sam = LangSAM(model_name, path_to_checkpoint)
 
         self.predictor = SamPredictor(self.model)
         self.mask_generator = SamAutomaticMaskGenerator(self.model)
