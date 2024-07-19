@@ -3,6 +3,7 @@ import os
 from PIL import Image
 import numpy as np
 import pandas as pd
+from scipy.optimize import brentq
 
 from segment_anything_utils import SegmentAnythingSession, save_black_and_white_image
 from segmentation_metrics import segmentation_metrics, average_dict_values
@@ -27,12 +28,43 @@ TRAINING_SET_SIZE = 10
 TEST_SET_SIZE = 10
 
 RANK=8
+ALPHA=0.2
 
 WEATHER = [
     "dust-0.4",
     "mapleleaf-0.4",
     "normal",
 ]
+
+def calculate_lambda(target_object_name, weather, sample_weather):
+    masks_path = f"dataset/{target_object_name}/{sample_weather}/train/masks"
+    image_path = f"dataset/{target_object_name}/{sample_weather}/train/images"
+
+    cal_sgmd = []
+    cal_gt_masks = []
+    for sample in os.listdir(masks_path):
+        full_masks_path = os.path.join(masks_path, sample)
+        full_image_path = os.path.join(image_path, sample)
+
+        sample_prediction_cache_path = f"cache/{weather}_model/{sample_image_path}/prediction.npy"
+        sample_logit_cache_path = f"cache/{weather}_model/{sample_image_path}/logit.npy"
+        logit_masks = lora_sam.cached_predict(sample_logit_cache_path, full_image_path, full_masks_path, return_logits=True)
+        binary_mask = lora_sam.cached_predict(sample_prediction_cache_path, full_image_path, full_masks_path, return_logits=False)
+        ground_truth = SegmentAnythingSession.filter_colors(full_masks_path, [(255, 255, 255)])
+
+        cal_sgmd.append(logit_masks)
+        cal_gt_masks.append(ground_truth)
+    
+    cal_sgmd = np.array(cal_sgmd)
+    cal_gt_masks = np.array(cal_gt_masks)
+
+    def false_negative_rate(pred_masks, true_masks):
+        return 1-((pred_masks * true_masks).sum(axis=1).sum(axis=1)/true_masks.sum(axis=1).sum(axis=1)).mean()
+    def lamhat_threshold(lam): 
+        n = len(cal_sgmd)
+        return false_negative_rate(cal_sgmd>=lam, cal_gt_masks) - ((n+1)/n*ALPHA - 1/n)
+    lamhat = brentq(lamhat_threshold, -1e10, 1)   
+    return lamhat
 
 for (target_object_name, target_object_colors) in [
     ("ferris_wheel", FERRIS_WHEEL_COLORS),
@@ -43,10 +75,12 @@ for (target_object_name, target_object_colors) in [
     for weather in WEATHER:
         lora_sam = LoraSamInference("./model_checkpoint/sam_vit_b_01ec64.pth", f"finetuned_weights/{target_object_name}/{weather}/lora_rank{RANK}.safetensors", RANK)
         predictions = []
+        conformal_predictions = []
         for sample_weather in WEATHER:
             average_predictions = []
             images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
             masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
+            lamhat = calculate_lambda(target_object_name, weather, sample_weather)
             for sample in os.listdir(images_path):
                 sample_image_path = os.path.join(images_path, sample)
                 sample_mask_path = os.path.join(masks_path, sample)
@@ -73,9 +107,12 @@ for (target_object_name, target_object_colors) in [
                     return_logits=True,
                     verbose=True
                 )
+                conformal_prediction = logit_prediction >= lamhat
 
                 ground_truth = SegmentAnythingSession.filter_colors(sample_mask_path, [(255, 255, 255)])
                 
                 predictions.append(segmentation_metrics(ground_truth, prediction))
+                conformal_predictions.append(segmentation_metrics(ground_truth, conformal_prediction))
+                
         predictions = pd.DataFrame(predictions)
         predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}.csv", index=False)
