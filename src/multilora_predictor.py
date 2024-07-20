@@ -6,7 +6,7 @@ class MultiloraPredictor:
     def __init__(self, target_objects: List[str], model_checkpoint, weather, rank = 8):
         self.models = {}
         for target_object in target_objects:
-            self.models[target_object] = LoraSamInference(model_checkpoint, f"finetuned_weights/{target_object}/lora_rank{rank}.safetensors", rank)
+            self.models[target_object] = LoraSamInference(model_checkpoint, f"finetuned_weights/{target_object}/{weather}/lora_rank{rank}.safetensors", rank)
 
     def predict(self, image_path, mask_path):
         outputs = {}
