@@ -71,7 +71,7 @@ def save_black_and_white_image(image, path):
     plt.close()
 
 def save_image(image, path):
-    # Set black and white color map
+    print(image)
     plt.pcolor(image)
     plt.imshow(image)
     plt.axis('off')
