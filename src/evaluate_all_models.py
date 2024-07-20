@@ -87,7 +87,7 @@ for weather in WEATHER:
         
         uncertainty_matrix = multilora_predictor.cached_uncertainty(full_prediction_cache_path, full_image_path, full_masks_path)
 
-        os.mkdir(f"uncertainty/{weather}_model/{full_image_path}", exist_ok=True)
+        os.makedirs(f"uncertainty/{weather}_model/{full_image_path}", exist_ok=True)
         save_image(uncertainty_matrix, f"uncertainty/{weather}_model/{full_image_path}/uncertainty.png")
 
         uncertainties.append({
