@@ -44,6 +44,8 @@ def logits_to_sgmd(logits):
 
 def calculate_uncertainty(matrixes: List[np.array]):
     # Convert false to 0 and true to 1
+    size = len(matrixes)
+
     matrixes = [matrix.astype(int) for matrix in matrixes]
     print(matrixes)
 
@@ -60,9 +62,9 @@ def calculate_uncertainty(matrixes: List[np.array]):
     zero_matrix = np.maximum(minus_one_matrix, 0)
 
     # total mean of all elements
-    total_sum = np.mean(zero_matrix)
+    total_mean = np.mean(zero_matrix)
 
-    return total_sum
+    return total_mean / size
 
 def calculate_lambda(target_object_name, weather, sample_weather):
     masks_path = f"dataset/{target_object_name}/{sample_weather}/train/masks"
