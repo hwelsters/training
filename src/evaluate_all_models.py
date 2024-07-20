@@ -133,6 +133,6 @@ for (target_object_name, target_object_colors) in [
         conformal_predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_conformal.csv", index=False)
 
         for key in uncertainties:
-            uncertainties[key] = math.mean(uncertainties[key])
+            uncertainties[key] = np.mean(np.array(uncertainties[key]))
         uncertainties_df = pd.DataFrame(uncertainties)
         uncertainties_df.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_uncertainties.csv", index=False)
