@@ -72,23 +72,23 @@ def calculate_lambda(target_object_name, weather, sample_weather):
     lamhat = brentq(lamhat_threshold, -1e10, 1)   
     return lamhat
 
-for weather in WEATHER:
-    predictions = []
-    conformal_predictions = []
-    uncertainties = []
-    for sample_weather in WEATHER:
-        
-        for sample in os.listdir(images_path):
-            matrix = []
-            for (target_object_name, target_object_colors) in [
-                ("ferris_wheel", FERRIS_WHEEL_COLORS),
-                ("tree", TREE_COLORS),
-                ("roller_coaster", ROLLER_COASTER_COLORS),
-                ("carousel", CAROUSEL_COLORS),
-            ]:
-                lamhat = calculate_lambda(target_object_name, weather, sample_weather)
-                lora_sam = LoraSamInference("./model_checkpoint/sam_vit_b_01ec64.pth", f"finetuned_weights/{target_object_name}/{weather}/lora_rank{RANK}.safetensors", RANK)
-                
+
+for (target_object_name, target_object_colors) in [
+    ("ferris_wheel", FERRIS_WHEEL_COLORS),
+    ("tree", TREE_COLORS),
+    ("roller_coaster", ROLLER_COASTER_COLORS),
+    ("carousel", CAROUSEL_COLORS),
+]:
+    for weather in WEATHER:
+        lora_sam = LoraSamInference("./model_checkpoint/sam_vit_b_01ec64.pth", f"finetuned_weights/{target_object_name}/{weather}/lora_rank{RANK}.safetensors", RANK)
+        predictions = []
+        conformal_predictions = []
+        uncertainties = []
+        for sample_weather in WEATHER:
+            lamhat = calculate_lambda(target_object_name, weather, sample_weather)
+            
+            for sample in os.listdir(images_path):
+                matrix = []
                 average_predictions = []
                 images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
                 masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
@@ -126,17 +126,12 @@ for weather in WEATHER:
                 predictions.append(segmentation_metrics(ground_truth, prediction))
                 conformal_predictions.append(segmentation_metrics(ground_truth, conformal_prediction))
 
-            # add up matrix element-wise
-            matrix = np.array(matrix)
-            matrix = matrix.sum(axis=0)
-            uncertainty = calculate_uncertainty(matrix)
-            predictions.append()
 
-    predictions = pd.DataFrame(predictions)
-    predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}.csv", index=False)
+        predictions = pd.DataFrame(predictions)
+        predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}.csv", index=False)
 
-    conformal_predictions = pd.DataFrame(conformal_predictions)
-    conformal_predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_conformal.csv", index=False)
+        conformal_predictions = pd.DataFrame(conformal_predictions)
+        conformal_predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_conformal.csv", index=False)
 
-    uncertainties = pd.DataFrame(uncertainties)
-    uncertainties.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_uncertainty.csv", index=False)
+        uncertainties = pd.DataFrame(uncertainties)
+        uncertainties.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_uncertainty.csv", index=False)
