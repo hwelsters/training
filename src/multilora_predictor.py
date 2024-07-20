@@ -36,13 +36,7 @@ class MultiloraPredictor:
         sum_matrix = np.sum(np_matrixes, axis=0)
         print(sum_matrix)
 
-        # element wise minus one
-        minus_one_matrix = sum_matrix - 1
-
-        # element wise make sure at least 0
-        zero_matrix = np.maximum(minus_one_matrix, 0)
-
         # total mean of all elements
-        total_mean = np.mean(zero_matrix)
+        total_mean = np.mean(sum_matrix)
 
         return total_mean
