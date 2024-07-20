@@ -43,8 +43,11 @@ def logits_to_sgmd(logits):
     return 1/(1+np.exp(-logits))
 
 def calculate_uncertainty(matrixes: List[np.array]):
+    np_matrixes = np.array(matrixes)
+
     # element wise sum of matrixes
-    sum_matrix = np.sum(matrixes, axis=0)
+    sum_matrix = np.sum(np_matrixes, axis=0)
+    print(sum_matrix)
 
     # element wise minus one
     minus_one_matrix = sum_matrix - 1
