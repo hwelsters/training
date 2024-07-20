@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import brentq
 
-from segment_anything_utils import SegmentAnythingSession, save_black_and_white_image
+from segment_anything_utils import SegmentAnythingSession, save_black_and_white_image, save_image
 from segmentation_metrics import segmentation_metrics, average_dict_values
 from lora_inference import LoraSamInference, combine_binary_masks
 from multilora_predictor import MultiloraPredictor
@@ -86,7 +86,7 @@ for weather in WEATHER:
         full_prediction_cache_path = f"cache/{weather}_model/{full_image_path}/prediction.npy"
         
         uncertainty_matrix = multilora_predictor.cached_average_uncertainties(full_prediction_cache_path, full_image_path, full_masks_path)
-        save_black_and_white_image(uncertainty_matrix, f"uncertainty/{weather}_model/{full_image_path}/uncertainty.png")
+        save_image(uncertainty_matrix, f"uncertainty/{weather}_model/{full_image_path}/uncertainty.png")
 
         uncertainties.append({
             "path": full_prediction_cache_path,

@@ -70,7 +70,7 @@ def save_black_and_white_image(image, path):
     plt.savefig(path, bbox_inches='tight', pad_inches=0)
     plt.close()
 
-def save__image(image, path):
+def save_image(image, path):
     # Set black and white color map
     plt.pcolor(image)
     plt.imshow(image)
