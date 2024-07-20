@@ -7,7 +7,7 @@
 import numpy as np
 import torch
 
-from lora.segment_anything.modeling import Sam
+from lora_k.segment_anything.modeling import Sam
 
 from typing import Optional, Tuple
 

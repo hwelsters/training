@@ -9,10 +9,10 @@ from torchvision import transforms
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 
-from lora.processor import Samprocessor
-from lora.segment_anything import build_sam_vit_b, SamPredictor
-from lora.lora import LoRA_sam
-import lora.utils as utils
+from lora_k.processor import Samprocessor
+from lora_k.segment_anything import build_sam_vit_b, SamPredictor
+from lora_k.lora import LoRA_sam
+import lora_k.utils as utils
 import yaml
 
 

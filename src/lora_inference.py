@@ -6,9 +6,9 @@ import numpy as np
 import torch
 
 from caching import is_numpy_array_cached, cache_numpy_array, load_cached_numpy_array
-from lora.segment_anything import build_sam_vit_b, SamPredictor
-from lora.lora import LoRA_sam
-from lora.utils import get_bounding_box
+from lora_k.segment_anything import build_sam_vit_b, SamPredictor
+from lora_k.lora import LoRA_sam
+from lora_k.utils import get_bounding_box
 from log_utils import log
 
 def combine_binary_masks(masks):

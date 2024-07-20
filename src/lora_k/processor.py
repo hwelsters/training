@@ -1,5 +1,5 @@
-from lora.segment_anything.utils.transforms import ResizeLongestSide
-from lora.lora import LoRA_sam
+from lora_k.segment_anything.utils.transforms import ResizeLongestSide
+from lora_k.lora import LoRA_sam
 import numpy as np
 import torch
 import PIL

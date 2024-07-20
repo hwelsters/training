@@ -11,7 +11,7 @@ import src.utils as utils
 from src.dataloader import DatasetSegmentation, collate_fn
 from src.processor import Samprocessor
 from src.segment_anything import build_sam_vit_b, SamPredictor
-from src.lora.lora import LoRA_sam
+from src.lora_k.lora import LoRA_sam
 import matplotlib.pyplot as plt
 import yaml
 import torch.nn.functional as F

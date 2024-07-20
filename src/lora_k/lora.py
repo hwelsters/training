@@ -1,5 +1,5 @@
-from lora.segment_anything import build_sam_vit_b
-from lora.segment_anything.modeling.sam import Sam
+from lora_k.segment_anything import build_sam_vit_b
+from lora_k.segment_anything.modeling.sam import Sam
 
 import numpy as np
 import torch

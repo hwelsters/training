@@ -2,7 +2,7 @@ import torch
 import numpy as np 
 from src.segment_anything import build_sam_vit_b, SamPredictor, sam_model_registry
 from src.processor import Samprocessor
-from src.lora import LoRA_sam
+from src.lora_k import LoRA_sam
 from PIL import Image
 import matplotlib.pyplot as plt
 import src.utils as utils

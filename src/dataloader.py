@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 from src.processor import Samprocessor
 from src.segment_anything import build_sam_vit_b, SamPredictor
-from src.lora import LoRA_sam
+from src.lora_k import LoRA_sam
 import src.utils as utils
 import yaml
 

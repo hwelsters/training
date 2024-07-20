@@ -4,7 +4,7 @@ from PIL import Image
 from src.segment_anything import SamPredictor, sam_model_registry
 import matplotlib.pyplot as plt
 import requests
-from src.lora import LoRA_sam
+from src.lora_k import LoRA_sam
 from src.segment_anything import build_sam_vit_b
 import yaml
 import cv2
