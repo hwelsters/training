@@ -2,6 +2,7 @@ import numpy as np
 from typing import List
 
 from lora_inference import LoraSamInference, combine_binary_masks
+from segment_anything_utils import save_black_and_white_image
 
 class MultiloraPredictor:
     def __init__(self, target_objects: List[str], model_checkpoint, weather, rank = 8):
@@ -21,22 +22,21 @@ class MultiloraPredictor:
             outputs[target_object] = model.cached_predict(cache_path, image_path, mask_path)
         return outputs
     
-    def cached_uncertainties(self, cache_path, image_path, mask_path):
+    def cached_average_uncertainties(self, cache_path, image_path, mask_path):
+        predictions = self.cached_predict(cache_path, image_path, mask_path)
+        return MultiloraPredictor.calculate_average_uncertainty(predictions.values())
+    
+    def cached_uncertainty(self, cache_path, image_path, mask_path):
         predictions = self.cached_predict(cache_path, image_path, mask_path)
         return MultiloraPredictor.calculate_uncertainty(predictions.values())
     
     def calculate_uncertainty(matrixes: List[np.array]):
-        # Convert false to 0 and true to 1
-        matrixes = [matrix.astype(int) for matrix in matrixes]
-        print(matrixes)
-
+        matrixes = [matrix.astype(int) for matrix in matrixes] # Convert false to 0 and true to 1
         np_matrixes = np.array(matrixes)
+        sum_matrix = np.sum(np_matrixes, axis=0) # element wise sum of matrixes
+        return sum_matrix
 
-        # element wise sum of matrixes
-        sum_matrix = np.sum(np_matrixes, axis=0)
-        print(sum_matrix)
-
-        # total mean of all elements
-        total_mean = np.mean(sum_matrix)
-
+    def calculate_average_uncertainty(matrixes: List[np.array]):
+        uncertainty_matrix = MultiloraPredictor.calculate_uncertainty(matrixes)
+        total_mean = np.mean(uncertainty_matrix)
         return total_mean

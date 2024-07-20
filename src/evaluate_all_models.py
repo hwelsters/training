@@ -84,10 +84,13 @@ for weather in WEATHER:
         full_image_path = os.path.join(TRAIN_IMAGE_PATH, sample)
 
         full_prediction_cache_path = f"cache/{weather}_model/{full_image_path}/prediction.npy"
+        
+        uncertainty_matrix = multilora_predictor.cached_average_uncertainties(full_prediction_cache_path, full_image_path, full_masks_path)
+        save_black_and_white_image(uncertainty_matrix, f"uncertainty/{weather}_model/{full_image_path}/uncertainty.png")
 
         uncertainties.append({
             "path": full_prediction_cache_path,
-            "uncertainty": multilora_predictor.cached_uncertainties(full_prediction_cache_path, full_image_path, full_masks_path)
+            "uncertainty": multilora_predictor.cached_average_uncertainties(full_prediction_cache_path, full_image_path, full_masks_path)
         })
 
 uncertainties_df = pd.DataFrame(uncertainties)
