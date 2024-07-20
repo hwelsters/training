@@ -85,13 +85,11 @@ for (target_object_name, target_object_colors) in [
         conformal_predictions = []
         uncertainties = []
         for sample_weather in WEATHER:
-            # lamhat = calculate_lambda(target_object_name, weather, sample_weather)
-            
+            images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
+            masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
             for sample in os.listdir(images_path):
                 matrix = []
                 average_predictions = []
-                images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
-                masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
                 sample_image_path = os.path.join(images_path, sample)
                 sample_mask_path = os.path.join(masks_path, sample)
                 sample_prediction_cache_path = f"cache/{weather}_model/{sample_image_path}/prediction.npy"
