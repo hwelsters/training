@@ -73,12 +73,10 @@ def calculate_lambda(target_object_name, weather, sample_weather):
     return lamhat
 
 for weather in WEATHER:
-    lora_sam = LoraSamInference("./model_checkpoint/sam_vit_b_01ec64.pth", f"finetuned_weights/{target_object_name}/{weather}/lora_rank{RANK}.safetensors", RANK)
     predictions = []
     conformal_predictions = []
     uncertainties = []
     for sample_weather in WEATHER:
-        lamhat = calculate_lambda(target_object_name, weather, sample_weather)
         
         for sample in os.listdir(images_path):
             matrix = []
@@ -88,6 +86,9 @@ for weather in WEATHER:
                 ("roller_coaster", ROLLER_COASTER_COLORS),
                 ("carousel", CAROUSEL_COLORS),
             ]:
+                lamhat = calculate_lambda(target_object_name, weather, sample_weather)
+                lora_sam = LoraSamInference("./model_checkpoint/sam_vit_b_01ec64.pth", f"finetuned_weights/{target_object_name}/{weather}/lora_rank{RANK}.safetensors", RANK)
+                
                 average_predictions = []
                 images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
                 masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
