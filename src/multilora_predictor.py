@@ -34,9 +34,7 @@ class MultiloraPredictor:
         matrixes = [matrix.astype(int) for matrix in matrixes] # Convert false to 0 and true to 1
         np_matrixes = np.array(matrixes)
         sum_matrix = np.sum(np_matrixes, axis=0) # element wise sum of matrixes
-        print(sum_matrix)
-        print(sum_matrix.shape)
-        return sum_matrix
+        return sum_matrix[0]
 
     def calculate_average_uncertainty(matrixes: List[np.array]):
         uncertainty_matrix = MultiloraPredictor.calculate_uncertainty(matrixes)
