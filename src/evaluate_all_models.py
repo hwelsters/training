@@ -42,30 +42,6 @@ WEATHER = [
 def logits_to_sgmd(logits):
     return 1/(1+np.exp(-logits))
 
-def calculate_uncertainty(matrixes: List[np.array]):
-    # Convert false to 0 and true to 1
-    size = len(matrixes)
-
-    matrixes = [matrix.astype(int) for matrix in matrixes]
-    print(matrixes)
-
-    np_matrixes = np.array(matrixes)
-
-    # element wise sum of matrixes
-    sum_matrix = np.sum(np_matrixes, axis=0)
-    print(sum_matrix)
-
-    # element wise minus one
-    minus_one_matrix = sum_matrix - 1
-
-    # element wise make sure at least 0
-    zero_matrix = np.maximum(minus_one_matrix, 0)
-
-    # total mean of all elements
-    total_mean = np.mean(zero_matrix)
-
-    return total_mean / size
-
 def calculate_lambda(target_object_name, weather, sample_weather):
     masks_path = f"dataset/{target_object_name}/{sample_weather}/train/masks"
     image_path = f"dataset/{target_object_name}/{sample_weather}/train/images"
@@ -109,10 +85,9 @@ for weather in WEATHER:
 
         full_prediction_cache_path = f"cache/{weather}_model/{full_image_path}/prediction.npy"
 
-        predictions = multilora_predictor.cached_predict(full_prediction_cache_path, full_image_path, full_masks_path)
         uncertainties.append({
             "path": full_prediction_cache_path,
-            "uncertainty": calculate_uncertainty(predictions.values())
+            "uncertainty": multilora_predictor.cached_uncertainties(full_prediction_cache_path, full_image_path, full_masks_path)
         })
 
 uncertainties_df = pd.DataFrame(uncertainties)
