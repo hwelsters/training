@@ -11,9 +11,5 @@
 #SBATCH --mail-type=ALL
 #SBATCH --export=NONE
 
-source /scratch/nngu2/Sam_LoRA/Sam_LoRA/venv/bin/activate
-
-cd /scratch/nngu2/Sam_LoRA/Sam_LoRA
-pip install -r requirements.txt
-
 python train.py
+python src/evaluate_all_models.py
