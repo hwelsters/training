@@ -32,6 +32,10 @@ def create_directories(target_object_name, weather):
     os.makedirs(f"{OUTPUT_DIR}/{target_object_name}/train/images",  exist_ok=True) 
     os.makedirs(f"{OUTPUT_DIR}/{target_object_name}/test/masks",   exist_ok=True) 
     os.makedirs(f"{OUTPUT_DIR}/{target_object_name}/test/images",  exist_ok=True) 
+    os.makedirs(f"{OUTPUT_DIR}/test/images",  exist_ok=True) 
+    os.makedirs(f"{OUTPUT_DIR}/test/masks",  exist_ok=True) 
+    os.makedirs(f"{OUTPUT_DIR}/train/images",  exist_ok=True) 
+    os.makedirs(f"{OUTPUT_DIR}/train/masks",  exist_ok=True) 
 
 for target_object_name, target_object_colors in [
     ("ferris_wheel", FERRIS_WHEEL_COLORS),
@@ -71,17 +75,23 @@ for target_object_name, target_object_colors in [
                     mask_path = ""
                     big_image_path = ""
                     big_mask_path = ""
+                    bigus_imageus_pathus = ""
+                    bigus_maskus_pathus = ""
 
                     if is_in_training_set:
                         image_path = f"{OUTPUT_DIR}/{target_object_name}/{weather}/train/images"
                         mask_path = f"{OUTPUT_DIR}/{target_object_name}/{weather}/train/masks"
                         big_image_path = f"{OUTPUT_DIR}/{target_object_name}/train/images/{weather}_{sample_index}_{rotation}_{index}.jpg"
                         big_mask_path = f"{OUTPUT_DIR}/{target_object_name}/train/masks/{weather}_{sample_index}_{rotation}_{index}.jpg"
+                        bigus_imageus_pathus = f"{OUTPUT_DIR}/train/images/{weather}_{sample_index}_{rotation}_{index}.jpg"
+                        bigus_maskus_pathus = f"{OUTPUT_DIR}/train/masks/{weather}_{sample_index}_{rotation}_{index}.jpg"
                     elif is_in_test_set:
                         image_path = f"{OUTPUT_DIR}/{target_object_name}/{weather}/test/images"
                         mask_path = f"{OUTPUT_DIR}/{target_object_name}/{weather}/test/masks"
                         big_image_path = f"{OUTPUT_DIR}/{target_object_name}/test/images/{weather}_{sample_index}_{rotation}_{index}.jpg"
                         big_mask_path = f"{OUTPUT_DIR}/{target_object_name}/test/masks/{weather}_{sample_index}_{rotation}_{index}.jpg"
+                        bigus_imageus_pathus = f"{OUTPUT_DIR}/test/images/{weather}_{sample_index}_{rotation}_{index}.jpg"
+                        bigus_maskus_pathus = f"{OUTPUT_DIR}/test/masks/{weather}_{sample_index}_{rotation}_{index}.jpg"
 
                     image = Image.open(input_image_path)
                     mask = Image.fromarray(np.uint8(filtered_colors) * 255)
@@ -96,5 +106,7 @@ for target_object_name, target_object_colors in [
                     mask_rgb.save(f"{mask_path}/{sample_index}_{rotation}_{index}.jpg")
                     image_rgb.save(big_image_path)
                     mask_rgb.save(big_mask_path)
+                    image_rgb.save(bigus_imageus_pathus)
+                    mask_rgb.save(bigus_maskus_pathus)
 
                     count += 1

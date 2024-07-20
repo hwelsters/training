@@ -85,9 +85,8 @@ for (target_object_name, target_object_colors) in [
         lora_sam = LoraSamInference("./model_checkpoint/sam_vit_b_01ec64.pth", f"finetuned_weights/{target_object_name}/{weather}/lora_rank{RANK}.safetensors", RANK)
         predictions = []
         conformal_predictions = []
-        for sample_weather in WEATHER:
-            images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
-            masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
+        images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
+        masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
             for sample in os.listdir(images_path):
                 matrix = []
                 average_predictions = []
