@@ -103,7 +103,7 @@ for weather in WEATHER:
         predictions = multilora_predictor.cached_predict(full_prediction_cache_path, full_image_path, full_masks_path)
         uncertainties.append({
             "path": full_prediction_cache_path,
-            "uncertainty": calculate_uncertainty(predictions)
+            "uncertainty": calculate_uncertainty(predictions.values())
         })
 
 uncertainties_df = pd.DataFrame(uncertainties)
