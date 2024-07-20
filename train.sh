@@ -11,5 +11,5 @@
 #SBATCH --mail-type=ALL
 #SBATCH --export=NONE
 
-python train.py
-python src/evaluate_all_models.py
+python3 train.py
+python3 src/evaluate_all_models.py
