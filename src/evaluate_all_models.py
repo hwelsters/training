@@ -1,4 +1,5 @@
 import os
+import math
 
 from PIL import Image
 import numpy as np
@@ -73,6 +74,7 @@ def calculate_lambda(target_object_name, weather, sample_weather):
     return lamhat
 
 
+uncertainties = {}
 for (target_object_name, target_object_colors) in [
     ("ferris_wheel", FERRIS_WHEEL_COLORS),
     ("tree", TREE_COLORS),
@@ -83,7 +85,6 @@ for (target_object_name, target_object_colors) in [
         lora_sam = LoraSamInference("./model_checkpoint/sam_vit_b_01ec64.pth", f"finetuned_weights/{target_object_name}/{weather}/lora_rank{RANK}.safetensors", RANK)
         predictions = []
         conformal_predictions = []
-        uncertainties = []
         for sample_weather in WEATHER:
             images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
             masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
@@ -117,16 +118,21 @@ for (target_object_name, target_object_colors) in [
                     verbose=True
                 )
                 sgmd_prediction = logits_to_sgmd(logit_prediction)
-                # conformal_prediction = sgmd_prediction >= lamhat
-
                 ground_truth = SegmentAnythingSession.filter_colors(sample_mask_path, [(255, 255, 255)])
-                
                 predictions.append(segmentation_metrics(ground_truth, prediction))
-                # conformal_predictions.append(segmentation_metrics(ground_truth, conformal_prediction))
 
+                uncertainties_key = f"{target_object_name}_{weather}_{sample_weather}_{sample}"
+                if uncertainties_key not in uncertainties:
+                    uncertainties[uncertainties_key] = []
+                uncertainties[uncertainties_key].append(calculate_uncertainty(sgmd_prediction))
 
         predictions = pd.DataFrame(predictions)
         predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}.csv", index=False)
 
         conformal_predictions = pd.DataFrame(conformal_predictions)
         conformal_predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_conformal.csv", index=False)
+
+        for key in uncertainties:
+            uncertainties[key] = math.mean(uncertainties[key])
+        uncertainties_df = pd.DataFrame(uncertainties)
+        uncertainties_df.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_uncertainties.csv", index=False)
