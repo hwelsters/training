@@ -85,7 +85,7 @@ for (target_object_name, target_object_colors) in [
         conformal_predictions = []
         uncertainties = []
         for sample_weather in WEATHER:
-            lamhat = calculate_lambda(target_object_name, weather, sample_weather)
+            # lamhat = calculate_lambda(target_object_name, weather, sample_weather)
             
             for sample in os.listdir(images_path):
                 matrix = []
@@ -119,12 +119,12 @@ for (target_object_name, target_object_colors) in [
                     verbose=True
                 )
                 sgmd_prediction = logits_to_sgmd(logit_prediction)
-                conformal_prediction = sgmd_prediction >= lamhat
+                # conformal_prediction = sgmd_prediction >= lamhat
 
                 ground_truth = SegmentAnythingSession.filter_colors(sample_mask_path, [(255, 255, 255)])
                 
                 predictions.append(segmentation_metrics(ground_truth, prediction))
-                conformal_predictions.append(segmentation_metrics(ground_truth, conformal_prediction))
+                # conformal_predictions.append(segmentation_metrics(ground_truth, conformal_prediction))
 
 
         predictions = pd.DataFrame(predictions)
@@ -132,6 +132,3 @@ for (target_object_name, target_object_colors) in [
 
         conformal_predictions = pd.DataFrame(conformal_predictions)
         conformal_predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_conformal.csv", index=False)
-
-        uncertainties = pd.DataFrame(uncertainties)
-        uncertainties.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_uncertainty.csv", index=False)
