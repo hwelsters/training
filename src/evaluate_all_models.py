@@ -121,7 +121,7 @@ for (target_object_name, target_object_colors) in [
                 ground_truth = SegmentAnythingSession.filter_colors(sample_mask_path, [(255, 255, 255)])
                 predictions.append(segmentation_metrics(ground_truth, prediction))
 
-                uncertainties_key = f"{target_object_name}_{weather}_{sample_weather}_{sample}"
+                uncertainties_key = f"{weather}_{sample_weather}_{sample}"
                 if uncertainties_key not in uncertainties:
                     uncertainties[uncertainties_key] = []
                 uncertainties[uncertainties_key].append(calculate_uncertainty(sgmd_prediction))
