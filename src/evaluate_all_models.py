@@ -36,6 +36,14 @@ WEATHER = [
     "normal",
 ]
 
+def logits_to_sgmd(logits):
+    return 1/(1+np.exp(-logits))
+
+def calculate_uncertainty(matrix):
+    matrix = matrix - 1
+    matrix = np.maximum(matrix, 0)
+    return matrix.sum()
+
 def calculate_lambda(target_object_name, weather, sample_weather):
     masks_path = f"dataset/{target_object_name}/{sample_weather}/train/masks"
     image_path = f"dataset/{target_object_name}/{sample_weather}/train/images"
@@ -46,13 +54,11 @@ def calculate_lambda(target_object_name, weather, sample_weather):
         full_masks_path = os.path.join(masks_path, sample)
         full_image_path = os.path.join(image_path, sample)
 
-        sample_prediction_cache_path = f"cache/{weather}_model/{sample_image_path}/prediction.npy"
-        sample_logit_cache_path = f"cache/{weather}_model/{sample_image_path}/logit.npy"
+        sample_logit_cache_path = f"cache/{weather}_model/{full_image_path}/logit.npy"
         logit_masks = lora_sam.cached_predict(sample_logit_cache_path, full_image_path, full_masks_path, return_logits=True)
-        binary_mask = lora_sam.cached_predict(sample_prediction_cache_path, full_image_path, full_masks_path, return_logits=False)
         ground_truth = SegmentAnythingSession.filter_colors(full_masks_path, [(255, 255, 255)])
-
-        cal_sgmd.append(logit_masks)
+        sgmd_masks = logits_to_sgmd(logit_masks)
+        cal_sgmd.append(sgmd_masks)
         cal_gt_masks.append(ground_truth)
     
     cal_sgmd = np.array(cal_sgmd)
@@ -66,22 +72,25 @@ def calculate_lambda(target_object_name, weather, sample_weather):
     lamhat = brentq(lamhat_threshold, -1e10, 1)   
     return lamhat
 
-for (target_object_name, target_object_colors) in [
-    ("ferris_wheel", FERRIS_WHEEL_COLORS),
-    ("tree", TREE_COLORS),
-    ("roller_coaster", ROLLER_COASTER_COLORS),
-    ("carousel", CAROUSEL_COLORS),
-]:
-    for weather in WEATHER:
-        lora_sam = LoraSamInference("./model_checkpoint/sam_vit_b_01ec64.pth", f"finetuned_weights/{target_object_name}/{weather}/lora_rank{RANK}.safetensors", RANK)
-        predictions = []
-        conformal_predictions = []
-        for sample_weather in WEATHER:
-            average_predictions = []
-            images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
-            masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
-            lamhat = calculate_lambda(target_object_name, weather, sample_weather)
-            for sample in os.listdir(images_path):
+for weather in WEATHER:
+    lora_sam = LoraSamInference("./model_checkpoint/sam_vit_b_01ec64.pth", f"finetuned_weights/{target_object_name}/{weather}/lora_rank{RANK}.safetensors", RANK)
+    predictions = []
+    conformal_predictions = []
+    uncertainties = []
+    for sample_weather in WEATHER:
+        lamhat = calculate_lambda(target_object_name, weather, sample_weather)
+        
+        for sample in os.listdir(images_path):
+            matrix = []
+            for (target_object_name, target_object_colors) in [
+                ("ferris_wheel", FERRIS_WHEEL_COLORS),
+                ("tree", TREE_COLORS),
+                ("roller_coaster", ROLLER_COASTER_COLORS),
+                ("carousel", CAROUSEL_COLORS),
+            ]:
+                average_predictions = []
+                images_path = f"dataset/{target_object_name}/{sample_weather}/test/images"
+                masks_path = f"dataset/{target_object_name}/{sample_weather}/test/masks"
                 sample_image_path = os.path.join(images_path, sample)
                 sample_mask_path = os.path.join(masks_path, sample)
                 sample_prediction_cache_path = f"cache/{weather}_model/{sample_image_path}/prediction.npy"
@@ -94,6 +103,7 @@ for (target_object_name, target_object_colors) in [
                     verbose=True
                 )
                 prediction = combine_binary_masks(prediction)
+                matrix.append(prediction)
 
                 prediction_png_path = f"results/{target_object_name}_{weather}_rank{RANK}"
                 if not os.path.exists(prediction_png_path):
@@ -107,12 +117,25 @@ for (target_object_name, target_object_colors) in [
                     return_logits=True,
                     verbose=True
                 )
-                conformal_prediction = logit_prediction >= lamhat
+                sgmd_prediction = logits_to_sgmd(logit_prediction)
+                conformal_prediction = sgmd_prediction >= lamhat
 
                 ground_truth = SegmentAnythingSession.filter_colors(sample_mask_path, [(255, 255, 255)])
                 
                 predictions.append(segmentation_metrics(ground_truth, prediction))
                 conformal_predictions.append(segmentation_metrics(ground_truth, conformal_prediction))
-                
-        predictions = pd.DataFrame(predictions)
-        predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}.csv", index=False)
+
+            # add up matrix element-wise
+            matrix = np.array(matrix)
+            matrix = matrix.sum(axis=0)
+            uncertainty = calculate_uncertainty(matrix)
+            predictions.append()
+
+    predictions = pd.DataFrame(predictions)
+    predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}.csv", index=False)
+
+    conformal_predictions = pd.DataFrame(conformal_predictions)
+    conformal_predictions.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_conformal.csv", index=False)
+
+    uncertainties = pd.DataFrame(uncertainties)
+    uncertainties.to_csv(f"results/{target_object_name}_{weather}_rank{RANK}_uncertainty.csv", index=False)
